@@ -4,8 +4,7 @@ author: "Denilson ... , Fabiano F. dos Santos"
 date: "2025-03-21"
 output:
   html_document: default
-  word_document: default
-  pdf_document: default
+  prefer-html: true
 ---
 
 ### Introdução do Procedimento
@@ -16,6 +15,7 @@ output:
 
 ```{r, echo=T, warning= F, menssage = F}
 # Carregar pacotes necessários
+suppressMessages("webshot2")
 suppressMessages(library(plotly))
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
