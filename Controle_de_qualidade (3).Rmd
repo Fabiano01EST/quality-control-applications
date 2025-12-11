@@ -8,12 +8,12 @@ output:
   pdf_document: default
 ---
 
-
 ## Introdução
 
-### Este procedimento descreve a fabricação de uma substância química, que exige a implementação de um controle estatístico para garantir o teor pureza do seu conteúdo. 
+### Este procedimento descreve a fabricação de uma substância química, que exige a implementação de um controle estatístico para garantir o teor pureza do seu conteúdo.
 
 ### Análise Estatística das 24 amostras:
+
 ```{r, echo=T, warning= F, menssage = F}
 # Carregar pacotes necessários
 suppressMessages(library(plotly))
@@ -62,6 +62,7 @@ ggplot(tabela_pureza, aes(x = "", y = Teor_Pureza)) +
   theme(legend.position = "bottom")  # Posiciona a legenda abaixo do gráfico
 
 ```
+
 ```{r}
 # Carregar bibliotecas necessárias
 library(dplyr)
@@ -90,6 +91,7 @@ ggplot(top_5_maior_diferenca, aes(x = factor(Numero_Amostra), y = Diferenca_Pure
   theme_bw() +
   annotate("text", x = 3, y = media_diferenca_maior + 0.1, label = paste("Média =", round(media_diferenca_maior, 2)), color = "red")
 ```
+
 ```{r}
 
 # Calcular a diferença absoluta no teor de pureza entre amostras consecutivas
@@ -117,8 +119,8 @@ ggplot(top_5_menor_diferenca, aes(x = factor(Numero_Amostra), y = Diferenca_Pure
 
 ```
 
-
 ### Calculando as médias
+
 ```{r}
 X_bar <- mean(tabela_pureza$Teor_Pureza)
 AM_bar <- mean(na.omit(tabela_pureza$Amplitude_Movel))
@@ -127,7 +129,6 @@ cat("Média do Teor de Pureza:", X_bar, "\n")
 cat("Média da Amplitude Móvel:", AM_bar, "\n")
 
 ```
-
 
 ### Resumo geral
 
@@ -138,7 +139,6 @@ resumo <- summary(na.omit(tabela_pureza[, c(2, 3)])); resumo
 ```
 
 ### Cálculo dos limites de controle para os gráfico X e AM
-
 
 ```{r}
 
@@ -168,9 +168,7 @@ cat("LIC:", LIC_X, "\n")
 
 ```
 
-
 ### Gráfico para Medidas Individuais
-
 
 ### O Limite Médio (LM) é obtido a partir da média geral das amostras. Para calcular os Limites de Controle da média, utiliza-se a constante d2.
 
@@ -193,6 +191,7 @@ grafico_X <- plot_ly(x = seq_along(Teor_Pureza), y = Teor_Pureza, type = 'scatte
          yaxis = list(title = "Média"))
 grafico_X
 ```
+
 ### Gráfico para a amplitude móvel
 
 ### Nesta fase, iniciamos o cálculo dos limites de controle inferior (LIC) e superior (LSC). Para determinar esses limites, é necessário calcular a amplitude média das amostras. Para o cálculo do Limite Inferior de Controle (LIC), utilizamos a constante D3, enquanto para o Limite Superior de Controle (LSC), aplicamos a constante D4.
@@ -216,6 +215,7 @@ grafico_AM
 ### Nenhuma amostra fora de controle foi identificada no gráfico de medidas Individuais, isso indica a ausência de amostras fora de controle no gráfico de medidas individuais indica que o processo está estável e dentro dos limites esperados, sem variações especiais.
 
 ### Análise Estatística das 48 amostras:
+
 ```{r}
 # Para as 23 amotras de 
 tabela_pureza2 <- data.frame(
@@ -233,6 +233,7 @@ tabela_pureza2 <- data.frame(
 )
 
 ```
+
 ### Análise descritiva
 
 ### Boxplot para estudar a diferenças entre os Teor de pureza das 48 amostras estudadas para o Teour de Pureza
@@ -267,6 +268,7 @@ ggplot(tabela_pureza2, aes(x = "", y = Teor_Pureza1)) +
 
 
 ```
+
 ```{r}
 # Calcular a diferença absoluta no teor de pureza entre amostras consecutivas
 tabela_pureza2 <- tabela_pureza2 %>%
@@ -318,7 +320,6 @@ ggplot(top_5_menor_diferenca, aes(x = factor(Numero_Amostra1), y = Diferenca_Pur
   annotate("text", x = 3, y = media_diferenca + 0.1, label = paste("Média =", round(media_diferenca, 2)), color = "red")
 ```
 
-
 ### Resumo dos Dados
 
 ```{r}
@@ -343,6 +344,7 @@ cat("LSC AM:", LSC_AM, "\n")
 cat("LIC AM:", LIC_AM, "\n\n")
 
 ```
+
 ### Gráfico X: calcular o limite inferior e o superior
 
 ```{r}
@@ -355,7 +357,6 @@ LIC_X <- X_bar - 3 * (AM_bar / d2)
 cat("LSC X:", LSC_X, "\n")
 cat("LIC X:", LIC_X, "\n")
 ```
-
 
 ### Análise no Gráfico da Amplitude Móvel
 
@@ -390,7 +391,6 @@ grafico_AM
 ```
 
 ### O gráfico da amplitude móvel indicou a presença de uma amostra fora de controle, isso indica a presença de amostras fora de controle no gráfico de medidas individuais indica que o processo não está estável e dentro dos limites esperados, com variações presentes.
-
 
 ### Análise no Gráfico para medidas individuais
 
@@ -429,11 +429,13 @@ grafico_X
 ```{r}
 fora_controle_AM <- which(tabela_pureza2$Amplitude_Movel1 > LSC_AM | tabela_pureza2$Amplitude_Movel1 < LIC_AM); print(fora_controle_AM)
 ```
+
 ```{r}
 fora_controle_X <- which(tabela_pureza2$Teor_Pureza1 > LSC_X | tabela_pureza2$Teor_Pureza1 < LIC_X); print(fora_controle_AM)
 ```
 
-### Tabela corrigida sem valores os mais diferentes/discrepantes 
+### Tabela corrigida sem valores os mais diferentes/discrepantes
+
 ```{r}
 # Remover amostras fora de controle
 tabela_pureza_corrigida <- tabela_pureza2[-c(fora_controle_AM, fora_controle_X), ];
@@ -507,7 +509,6 @@ grafico_X_corrigido <- plot_ly(x = seq_along(tabela_pureza_corrigida$Teor_Pureza
          yaxis = list(title = "X")); grafico_X_corrigido
 
 ```
-
 
 ### Conclusão
 
