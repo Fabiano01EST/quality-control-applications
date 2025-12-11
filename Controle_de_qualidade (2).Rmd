@@ -1,0 +1,211 @@
+---
+title: 'Controle de Qualidade: Monitorando o Anéis de pistas com Gráficos X e R'
+author: " Fabiano F. dos Santos"
+date: "2025-03-21"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+## Introdução do Procedimento
+
+### O anel de pistão é um componente metálico que se encaixa nas ranhuras do pistão e tem a função de vedação, controle de lubrificação e dissipação de calor dentro do cilindro do motor. sendo essencial para o bom funcionamento do motor de combustão interna.
+
+### Tipos de anéis de pistão:
+
+### Os motores geralmente utilizam três anéis principais:
+
+-   
+
+    ### Anel de compressão: O primeiro anel, mais próximo do topo do pistão, que veda os gases da combustão.
+
+-   
+
+    ### Anel raspador ou de vedação secundária: Auxilia na vedação e também ajuda no controle do óleo.
+
+-   
+
+    ### Anel de óleo: Remove o excesso de óleo das paredes do cilindro e o direciona de volta ao cárter.
+
+### Os anéis de pistão são geralmente feitos de ferro fundido ou aço com tratamentos superficiais para aumentar a durabilidade e reduzir o atrito.
+
+## Principais aplicações dos anéis de pistão:
+
+-   
+
+    ### Vedação da câmara de combustão: Evita que gases da combustão escapem para o cárter, garantindo maior eficiência do motor.
+
+-   
+
+    ### Controle do óleo lubrificante: Regula a quantidade de óleo na parede do cilindro, evitando que ele entre na câmara de combustão.
+
+-   
+
+    ### Dissipação de calor: Ajuda a transferir o calor do pistão para as paredes do cilindro, evitando o superaquecimento.
+
+## Como é Medido?
+
+### dois métodos principais para medir o diâmetro do anel de pistão:
+
+### Medição com o anel montado no cilindro (mais precisa)
+
+-   
+
+    ### Coloque o anel dentro do cilindro e alinhe-o usando o pistão.
+
+-   
+
+    ### Meça a folga da abertura do anel com um calibrador de lâminas.
+
+-   
+
+    ### Compare com as especificações do fabricante para garantir o ajuste correto.
+
+### Medição do diâmetro nominal do anel (antes da instalação)
+
+-   
+
+    ### Meça o diâmetro externo do anel com um micrômetro ou paquímetro.
+
+-   
+
+    ### Ou use a fórmula: D = C / π (onde C é o comprimento da circunferência).
+
+-   
+
+    ### Esse método fornece uma estimativa do diâmetro, mas a medição dentro do cilindro é mais confiável.
+
+### Essas medições garantem que o anel tenha o ajuste correto para vedação e desempenho do motor.
+
+## Importância da medição correta:
+
+-   
+
+    ### Se a folga da abertura for pequena, o anel pode expandir durante o aquecimento e travar no cilindro, causando danos.
+
+-   
+
+    ### Se a folga for grande, pode ocorrer vazamento de gases de combustão, reduzindo a eficiência do motor.
+
+-   
+
+    ### Se o diâmetro estiver errado, o anel pode não vedar corretamente ou desgastar-se prematuramente.
+
+## Objetivo:
+
+### Estabelecer um controle estatístico para o diâmetro interno dos anéis de pistão, garantindo que as dimensões estejam dentro das especificações para um funcionamento eficiente do motor.
+
+### Análise Estatística das 25 amostras de diâmetro de Aneis de pistões:
+
+```{r, echo=T, warning= F, menssage = F}
+# Carregar pacotes necessários
+suppressMessages(library(plotly))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+
+# Vetor com as amostras de tamanho n = 25
+
+Diametros = readxl::read_xls("1_5123146563874457505.xls") %>%  as.data.frame(); Diametros$amostras = 1:25; Diametros
+
+```
+
+### Análise descritiva
+
+```{r}
+# Calcular o resumo estatístico para a coluna "Teor_Pureza"
+medias <- rowMeans((Diametros[,-1]), na.rm = TRUE); medias %>%  as.numeric() %>% print()
+```
+
+### "Boxplot para comparar os diâmetros dos pistões em 25 amostras."
+
+```{r}
+# Criar uma coluna categórica para identificar os pontos fora dos limites
+
+media_geral = mean(medias) %>% as.numeric()
+
+# Transformando medias em um data frame e classificando
+medias_df <- data.frame(medias) %>%
+  mutate(Classificacao = case_when(
+    medias > media_geral ~ "Acima da média",
+    medias < media_geral ~ "Abaixo da média",
+    TRUE ~ "Na média"
+  ))
+
+# Criar o boxplot com os pontos coloridos por categoria
+ggplot(medias_df, aes(x = medias, y = Classificacao)) +
+  geom_boxplot(fill = "lightblue", color = "black", outlier.shape = NA) + # Remove a linha da mediana +
+  geom_jitter(aes(color = Classificacao), width = 0.2, size = 2, alpha = 0.6) +  
+ # stat_summary(fun = mean, geom = "errorbar", width = 0.5, aes(ymax = ..y.., ymin = ..y..), color = "orange", linewidth = 1) +
+ # stat_summary(fun = mean, color = "orange", size = 3) +  # Adiciona o ponto da média
+  scale_color_manual(
+    name = "Status da amostra",  # Novo título da legenda
+    values = c("Acima da média" = "red", "Abaixo da média" = "blue"),
+    labels = c("Acima da média","Acima da média ")
+  ) +
+  labs(title = "Distribuição Geral da media dos Diâmetros dos Aneis",
+       x = "Diâmetro do Anel em (mm)",
+       y = "Classificação") +
+  theme_bw()
+
+```
+
+```{r}
+# Calcular o desvio médio
+Diametros_1 = Diametros[,c(2,3,4,5)] %>% as.data.frame()
+medias_df <- data.frame(Diametros_1) %>%
+  mutate(Desvio_Padrao = apply(Diametros_1, 1, function(x) sd(x, na.rm = TRUE))) %>%
+  as.data.frame()
+
+
+# Criar uma coluna categórica para identificar os pontos fora dos limites
+Desvio_Padrao_geral = mean(medias_df$Desvio_Padrao) %>% as.numeric(); Desvio_Padrao_geral
+```
+
+```{r}
+# Transformando medias em um data frame e classificando
+medias_df <- medias_df %>%
+  mutate(Classificacao2 = case_when(
+    Desvio_Padrao > Desvio_Padrao_geral ~ "Acima do Desvio Padrão médio",
+    Desvio_Padrao < Desvio_Padrao_geral ~ "Abaixo do Desvio Padrão médio",
+    TRUE ~ "No Desvio médio Padrão médio"
+  ))
+
+ggplot(medias_df, aes(x = Desvio_Padrao, y = Classificacao2)) +  
+  geom_boxplot(fill = "yellow", outlier.shape = NA) +  
+  geom_jitter(aes(color = Classificacao2), width = 0.2, size = 2, alpha = 0.6) +  
+  scale_color_manual(
+    name = "Status da amostra",  # Título da legenda
+    values = c(
+      "Acima do Desvio Padrão médio" = "red", 
+      "Abaixo do Desvio Padrão médio" = "blue",
+      "No Desvio médio Padrão médio" = "green"
+    )
+  ) +
+  labs(title = "Distribuição Geral dos Desvios dos Diâmetros dos Anéis",
+       x = "Diâmetro do Anel em (mm)",
+       y = "Classificação") +
+  theme_bw()  # Mantém o tema, mas sem remover a legenda
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+ggplot(medias_df, aes(x = Classificacao2, y = Desvio_Padrao, fill = Classificacao2)) +
+  geom_col(show.legend = FALSE) +  # Gráfico de barras (colunas)
+  scale_fill_manual(
+    name = "Classificação",
+    values = c(
+      "Acima do Desvio Padrão médio" = "red",
+      "Abaixo do Desvio Padrão médio" = "blue",
+      "No Desvio médio Padrão médio" = "green"
+    )
+  ) +
+  labs(title = "Gráfico de Barra para os Desvios Padrão dos Anéis",
+       x = "Classificação",
+       y = "Percentual de amostras (%)") +
+  scale_y_continuous(labels = c("0", "0.25", "0.50", "0.75")) +  # Correção do eixo Y
+  theme_bw()
+
+```
